@@ -13,12 +13,14 @@ class Interact:
 
     def train(self, episodes=20, patience=5):
         pat = deque([], maxlen=patience)
-        for epi in range(episodes):
+        for epi in range(1, episodes+1):
             score = 0
             state = self.env.reset()
             done = False
-            print(epi, end='\t')
+            ct = 1
             while not done:
+                print('{}.{}'.format(epi, ct), end=' ')
+                ct += 1
                 action = self.agent.action(state)
                 new_state, reward, done, _ = self.env.step(action)
 
@@ -28,29 +30,32 @@ class Interact:
                 self.agent.target_train()
                 state = new_state
                 score += reward
-
+                print()
             self.agent.epsilon = max(self.agent.epsilon * self.agent.epsilon_decay, self.agent.epsilon_min)
-            print(score)
             self.scores.append(score)
             pat.append(score)
             if np.std(pat) < 1 and len(pat) == patience:
                 return
-            if epi % 5 == 0:
+            if epi % 2 == 0:
                 self.agent.save_model()
 
     def observe(self, episodes=5):
         total_score = []
         self.agent.load_model()
-        for _ in range(episodes):
+        for epi in range(1, episodes+1):
             score = 0
             state = self.env.reset()
             done = False
+            ct = 1
             while not done:
+                print('{}.{}'.format(epi, ct), end=' ')
+                ct += 1
                 self.env.render()
                 action = self.agent.action(state)
                 new_state, reward, done, _ = self.env.step(action)
                 state = new_state
                 score += reward
+                print()
 
             total_score.append(score)
             self.env.close()
