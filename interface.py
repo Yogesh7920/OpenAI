@@ -10,34 +10,34 @@ class Interact:
         self.env = gym.make(s)
         self.agent = Agent()
         self.scores = []
+        self.avg_scores = deque([], maxlen=100)
+        self.freq_target_train = 10
 
-    def train(self, episodes=20, patience=5):
-        pat = deque([], maxlen=patience)
+    def train(self, episodes=20):
         for epi in range(1, episodes+1):
             score = 0
             state = self.env.reset()
             done = False
             ct = 1
+            rb = [0, 0]
             while not done:
-                print('{}.{}'.format(epi, ct), end=' ')
                 ct += 1
-                action = self.agent.action(state)
+                action, ind = self.agent.action(state)
+                rb[ind] += 1
                 new_state, reward, done, _ = self.env.step(action)
 
                 self.agent.remember(state, action, reward, new_state, done)
 
-                self.agent.train()
-                self.agent.target_train()
                 state = new_state
                 score += reward
-                print()
-            self.agent.epsilon = max(self.agent.epsilon * self.agent.epsilon_decay, self.agent.epsilon_min)
+            self.agent.train()
+            if epi % self.freq_target_train:
+                self.agent.target_train()
             self.scores.append(score)
-            pat.append(score)
-            if np.std(pat) < 1 and len(pat) == patience:
-                return
-            if epi % 2 == 0:
+            self.avg_scores.append(score)
+            if epi % 100 == 0:
                 self.agent.save_model()
+                print('EPISODE = {}, AVG = {}'.format(epi, np.mean(self.avg_scores)))
 
     def observe(self, episodes=5):
         total_score = []
