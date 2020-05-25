@@ -11,7 +11,7 @@ class Interact:
         self.agent = Agent()
         self.scores = []
         self.avg_scores = deque([], maxlen=100)
-        self.freq_target_train = 10
+        self.freq_target_train = 1
 
     def train(self, episodes=20):
         for epi in range(1, episodes+1):
@@ -35,9 +35,13 @@ class Interact:
                 self.agent.target_train()
             self.scores.append(score)
             self.avg_scores.append(score)
+            avg = 0
             if epi % 100 == 0:
+                avg = np.mean(self.avg_scores)
                 self.agent.save_model()
-                print('EPISODE = {}, AVG = {}'.format(epi, np.mean(self.avg_scores)))
+                print('EPISODE = {}, AVG = {}'.format(epi, avg))
+            if avg >= 195:
+                break
 
     def observe(self, episodes=5):
         total_score = []
