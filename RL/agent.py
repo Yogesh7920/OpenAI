@@ -46,7 +46,7 @@ class Agent:
         self.action_memory.append(action)
         self.reward_memory.append(reward)
         self.next_state_memory.append(next_state)
-        self.terminal_memory.append(terminal)
+        self.terminal_memory.append(np.bitwise_not(terminal))
         self.memory_len += 1
         self.memory_len = min(self.memory_len, self.max_memory_len)
 
@@ -71,7 +71,7 @@ class Agent:
         q_eval = self.model.predict(states)
         q_next = self.target.predict(next_states)
         q_tar = q_eval.copy()
-        G = self.gamma * np.max(q_next, axis=1) * np.bitwise_not(terminals)
+        G = self.gamma * np.max(q_next, axis=1) * terminals
         inds = self.batch_index[:min(self.memory_len, self.batch_size)]
         q_tar[inds, actions] = rewards + G
         self.model.fit(states, q_tar, verbose=0)

@@ -1,5 +1,5 @@
 import gym
-from agent import Agent
+from RL.agent import Agent
 from collections import deque
 import numpy as np
 
@@ -45,22 +45,20 @@ class Interact:
 
     def observe(self, episodes=5):
         total_score = []
-        self.agent.load_model()
         for epi in range(1, episodes+1):
             score = 0
             state = self.env.reset()
             done = False
-            ct = 1
+            ct = 0
             while not done:
-                print('{}.{}'.format(epi, ct), end=' ')
                 ct += 1
                 self.env.render()
-                action = self.agent.action(state)
+                action, _ = self.agent.action(state)
                 new_state, reward, done, _ = self.env.step(action)
                 state = new_state
                 score += reward
-                print()
 
+            print('{}.{}'.format(epi, ct))
             total_score.append(score)
             self.env.close()
 
