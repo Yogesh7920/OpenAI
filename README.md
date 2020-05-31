@@ -1,4 +1,4 @@
-# OpenAI
+# OpenAI_GYM
 
 This project aims to solve any **OpenAI gym** problems using **DQN and NEAT**.
 This project consists of 2 sub-dir.
